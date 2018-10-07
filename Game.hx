@@ -194,12 +194,8 @@ class Game extends hxd.App
             }
         }
 
-        var itemTile:Dynamic = getById(db, "item", item).tile;
-        trace(itemTile.file);
-        trace(itemTile.x);
-        trace(itemTile.y);
-        trace(itemTile.size);
-        trace(itemTile.width);
+        var itemTile:cdb.Types.TilePos = getById(db, "item", item).tile;
+        trace(itemTile);
 
         var newNPC = {
             x : 25, 
