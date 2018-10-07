@@ -13,7 +13,7 @@ class Game extends hxd.App
         new Game();
     }
 
-    function getById(db:cdb.Database, sheetName:String, id:String):Dynamic
+    public function getById(db:cdb.Database, sheetName:String, id:String):Dynamic
     {
         var sheet = db.getSheet(sheetName);
         var sheetColumns = sheet.columns;
@@ -43,6 +43,28 @@ class Game extends hxd.App
             if (Reflect.field(line, idField) == id)
             {
                 return line;
+            }
+        }
+
+        return null;
+    }
+
+    public function getEnumValues(db:cdb.Database, sheetName:String, columnName:String):Array<String>
+    {
+        var sheet = db.getSheet(sheetName);
+        var sheetColumns = sheet.columns;
+
+        for (column in sheetColumns)
+        {
+            if (column.name == columnName)
+            {
+                switch (column.type)
+                {
+                    case TEnum(values):
+                        return values;
+                    default:
+
+                }
             }
         }
 
@@ -81,21 +103,8 @@ class Game extends hxd.App
         // Посмотрим типы столбцов
         trace(npcSheet.columns);
         
-        var enumValues:Array<String> = [];
-        for (column in npcSheet.columns)
-        {
-            if (column.name == "type")
-            {
-                switch (column.type)
-                {
-                    case cdb.Data.ColumnType.TEnum(values):
-                        enumValues = values;
-                    default:
-
-                }
-            }
-        }
-
+        var enumValues:Array<String> = getEnumValues(db, "npc", "type");
+        
         trace("enumValues: " + enumValues);
 
         // Первая строка на листе npc
