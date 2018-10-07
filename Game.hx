@@ -13,30 +13,33 @@ class Game extends hxd.App
         new Game();
     }
 
-    public function getById(db:cdb.Database, sheetName:String, id:String):Dynamic
+    public function getIdField(db:cdb.Database, sheetName:String):String
     {
         var sheet = db.getSheet(sheetName);
         var sheetColumns = sheet.columns;
-
-        var idField = null;
         for (column in sheetColumns)
         {
             switch (column.type)
             {
                 case cdb.Data.ColumnType.TId:
-                    idField = column.name;
-                    break;
-                
+                    return column.name;
                 default:
 
             }
         }
 
+        return null;
+    }
+
+    public function getById(db:cdb.Database, sheetName:String, id:String):Dynamic
+    {
+        var idField = getIdField(db, sheetName);
         if (idField == null)
         {
             return null;
         }
 
+        var sheet = db.getSheet(sheetName);
         var lines = sheet.lines;
         for (line in lines)
         {
@@ -49,7 +52,7 @@ class Game extends hxd.App
         return null;
     }
 
-    public function getEnumValues(db:cdb.Database, sheetName:String, columnName:String):Array<String>
+    public function getEnumNames(db:cdb.Database, sheetName:String, columnName:String):Array<String>
     {
         var sheet = db.getSheet(sheetName);
         var sheetColumns = sheet.columns;
@@ -69,6 +72,46 @@ class Game extends hxd.App
         }
 
         return null;
+    }
+
+    public function getEnumValue(db:cdb.Database, sheetName:String, columnName:String, index:Int):String
+    {
+        return getEnumNames(db, sheetName, columnName)[index];
+    }
+
+    public function getFlagNames(db:cdb.Database, sheetName:String, columnName:String):Array<String>
+    {
+        var sheet = db.getSheet(sheetName);
+        for (column in sheet.columns)
+        {
+            if (column.name == columnName)
+            {
+                switch (column.type)
+                {
+                    case cdb.Data.ColumnType.TFlags(values):
+                        return values;
+                    default:
+
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @:access(cdb.Flags)
+    public function getFlagValues(db:cdb.Database, sheetName:String, columnName:String, value:Int):Map<String, Bool>
+    {
+        var flagNames = getFlagNames(db, sheetName, columnName);
+        var flags = new cdb.Types.Flags<Int>(value);
+        var result:Map<String, Bool> = new Map<String, Bool>();
+
+        for (i in 0...flagNames.length)
+        {
+            result.set(flagNames[i], flags.has(i));
+        }
+        
+        return result;
     }
 
     // Инициализация проекта
@@ -103,33 +146,18 @@ class Game extends hxd.App
         // Посмотрим типы столбцов
         trace(npcSheet.columns);
         
-        var enumValues:Array<String> = getEnumValues(db, "npc", "type");
-        
-        trace("enumValues: " + enumValues);
+        var enumNames:Array<String> = getEnumNames(db, "npc", "type");
+        trace("enumValues: " + enumNames);
 
         // Первая строка на листе npc
         npcs[0].hasPortrait = false;
         trace(npcs[0]);
-        trace("npc type: " + enumValues[npcs[0].type]);
+        trace("npc type: " + getEnumValue(db, "npc", "type", npcs[0].type));
 
         var imagesSheet:cdb.Sheet = db.getSheet("images");
         trace(imagesSheet.columns);
 
-        var flagValues:Array<String> = [];
-        for (column in imagesSheet.columns)
-        {
-            if (column.name == "stats")
-            {
-                switch (column.type)
-                {
-                    case cdb.Data.ColumnType.TFlags(values):
-                        flagValues = values;
-                    default:
-
-                }
-            }
-        }
-
+        var flagValues:Array<String> = getFlagNames(db, "images", "stats");
         trace("flagValues: " + flagValues);
 
         trace(imagesSheet.lines[1]);
@@ -142,9 +170,10 @@ class Game extends hxd.App
         // Давайте уберем значение второго флага
         flags.unset(1);
         // Читаем значения каждого флага
-        for (i in 0...flagValues.length)
+        var flagValues = getFlagValues(db, "images", "stats", imagesSheet.lines[1].stats);
+        for (key in flagValues.keys())
         {
-            trace(flagValues[i] + ": " + flags.has(i));
+            trace(key + ": " + flagValues.get(key));
         }
         
         // Добавить строку на лист (вставим ее в самое начало листа)
@@ -159,9 +188,10 @@ class Game extends hxd.App
         flags.set(2);
         newLine.stats = flags;
         // Проверим, правильно ли мы установили флаг
-        for (i in 0...flagValues.length)
+        flagValues = getFlagValues(db, "images", "stats", newLine.stats);
+        for (key in flagValues.keys())
         {
-            trace(flagValues[i] + ": " + flags.has(i));
+            trace(key + ": " + flagValues.get(key));
         }
 
         // Выведем нашу строку
@@ -174,6 +204,7 @@ class Game extends hxd.App
 
         var secondLevel = levelSheet.lines[1];
         
+        // TODO: improve this example...
         var subColumnParent:Dynamic = null;
         for (column in levelSheet.columns)
         {
@@ -192,19 +223,9 @@ class Game extends hxd.App
         var item = levelSheet.lines[1].npcs[0].item;
         trace("item: " + item);
 
-        var items = db.getSheet("item").lines;
-        for (it in items)
-        {
-            if (it.id == item)
-            {
-                // Нашли нашу запись
-                trace(it.tile);
-                break;
-            }
-        }
-
-        var itemTile:cdb.Types.TilePos = getById(db, "item", item).tile;
-        trace(itemTile);
+        // Находим по ссылке тайл записи, на которую ссылается запись item:
+        var referencedTile:cdb.Types.TilePos = getById(db, "item", item).tile;
+        trace("referencedTile: " + referencedTile);
 
         var newNPC = {
             x : 25, 
