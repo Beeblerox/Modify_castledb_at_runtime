@@ -31,6 +31,28 @@ class Game extends hxd.App
         return null;
     }
 
+    public function getIndexById(db:cdb.Database, sheetName:String, id:String):Int
+    {
+        var idField = getIdField(db, sheetName);
+        if (idField == null)
+        {
+            return null;
+        }
+
+        var sheet = db.getSheet(sheetName);
+        var lines = sheet.lines;
+        for (i in 0...lines.length)
+        {
+            var line = lines[i];
+            if (Reflect.field(line, idField) == id)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     public function getById(db:cdb.Database, sheetName:String, id:String):Dynamic
     {
         var idField = getIdField(db, sheetName);
@@ -112,6 +134,19 @@ class Game extends hxd.App
         }
         
         return result;
+    }
+
+    public function deleteLineById(db:cdb.Database, sheetName:String, id:String):Bool
+    {
+        var index:Int = getIndexById(db, sheetName, id);
+        if (index < 0)
+        {
+            return false;
+        }
+        
+        var sheet = db.getSheet(sheetName);
+        sheet.deleteLine(index);
+        return true;
     }
 
     // Инициализация проекта
@@ -236,7 +271,13 @@ class Game extends hxd.App
 
         levelSheet.lines[1].npcs.push(newNPC);
         trace(levelSheet.lines[1].npcs);
-        
+
+        trace(levelSheet.lines.length);
+
+        trace("before deletion: " + imagesSheet.lines.length);
+        deleteLineById(db, "images", "sloth");
+        trace("after deletion: " + imagesSheet.lines.length);
+
         // Сохраняем базу, а полученную строку можем сохранить удобным способом
         var newData:String = db.save();
     }
