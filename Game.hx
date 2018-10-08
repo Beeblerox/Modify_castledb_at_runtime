@@ -193,7 +193,19 @@ class Game extends hxd.App
     {
         // Загрузка данных для базы из файла data.cdb
         Data.load(hxd.Res.data.entry.getText());
-        
+        /*
+        var fields = Reflect.fields(Data);
+        trace(fields);
+
+        fields = Reflect.fields(Data.collide);
+        trace(fields);
+
+        fields = Reflect.fields(Reflect.field(Data.collide, "sheet"));
+        trace(fields);
+
+        var sheet = Reflect.field(Data.collide, "sheet");
+        trace(sheet.lines.length);
+        */
         // Загружаем всю базу
         var db:cdb.Database = new cdb.Database();
         db.load(hxd.Res.data.entry.getText());
