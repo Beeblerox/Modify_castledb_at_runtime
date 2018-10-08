@@ -14,7 +14,7 @@ class Game extends hxd.App
     }
 
     // TODO: use it...
-    public function getColumnByName(db:cdb.Database, sheetName:String, columnName:String):Dynamic
+    public function getColumnByName(db:cdb.Database, sheetName:String, columnName:String):cdb.Data.Column
     {
         var sheet = db.getSheet(sheetName);
         var sheetColumns = sheet.columns;
@@ -32,22 +32,19 @@ class Game extends hxd.App
 
     public function getByRefId(db:cdb.Database, sheetName:String, columnName:String, id:String):Dynamic
     {
-        var sheet = db.getSheet(sheetName);
-        var sheetColumns = sheet.columns;
-        var refSheetName = null;
-        for (column in sheetColumns)
+        var refColumn = getColumnByName(db, sheetName, columnName);
+        if (refColumn == null)
         {
-            if (column.name == columnName)
-            {
-                switch (column.type)
-                {
-                    case TRef(sheet):
-                        refSheetName = sheet;
-                        break;
-                    default:
+            return null;
+        }
 
-                }
-            }
+        var refSheetName = null;
+        switch (refColumn.type)
+        {
+            case TRef(sheet):
+                refSheetName = sheet;
+            default:
+
         }
 
         if (refSheetName == null)
@@ -121,21 +118,18 @@ class Game extends hxd.App
 
     public function getEnumNames(db:cdb.Database, sheetName:String, columnName:String):Array<String>
     {
-        var sheet = db.getSheet(sheetName);
-        var sheetColumns = sheet.columns;
-
-        for (column in sheetColumns)
+        var column = getColumnByName(db, sheetName, columnName);
+        if (column == null)
         {
-            if (column.name == columnName)
-            {
-                switch (column.type)
-                {
-                    case TEnum(values):
-                        return values;
-                    default:
+            return null;
+        }
 
-                }
-            }
+        switch (column.type)
+        {
+            case TEnum(values):
+                return values;
+            default:
+
         }
 
         return null;
@@ -148,19 +142,18 @@ class Game extends hxd.App
 
     public function getFlagNames(db:cdb.Database, sheetName:String, columnName:String):Array<String>
     {
-        var sheet = db.getSheet(sheetName);
-        for (column in sheet.columns)
+        var column = getColumnByName(db, sheetName, columnName);
+        if (column == null)
         {
-            if (column.name == columnName)
-            {
-                switch (column.type)
-                {
-                    case cdb.Data.ColumnType.TFlags(values):
-                        return values;
-                    default:
+            return null;
+        }
 
-                }
-            }
+        switch (column.type)
+        {
+            case cdb.Data.ColumnType.TFlags(values):
+                return values;
+            default:
+
         }
 
         return null;
