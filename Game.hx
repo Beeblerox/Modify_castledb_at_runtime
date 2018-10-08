@@ -13,6 +13,34 @@ class Game extends hxd.App
         new Game();
     }
 
+    public function getByRefId(db:cdb.Database, sheetName:String, columnName:String, id:String):Dynamic
+    {
+        var sheet = db.getSheet(sheetName);
+        var sheetColumns = sheet.columns;
+        var refSheetName = null;
+        for (column in sheetColumns)
+        {
+            if (column.name == columnName)
+            {
+                switch (column.type)
+                {
+                    case TRef(sheet):
+                        refSheetName = sheet;
+                        break;
+                    default:
+
+                }
+            }
+        }
+
+        if (refSheetName == null)
+        {
+            return null;
+        }
+
+        return getById(db, refSheetName, id);
+    }
+
     public function getIdField(db:cdb.Database, sheetName:String):String
     {
         var sheet = db.getSheet(sheetName);

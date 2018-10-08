@@ -465,7 +465,29 @@ Game.main = function() {
 };
 Game.__super__ = hxd_App;
 Game.prototype = $extend(hxd_App.prototype,{
-	getIdField: function(db,sheetName) {
+	getByRefId: function(db,sheetName,columnName,id) {
+		var sheet = db.getSheet(sheetName);
+		var sheetColumns = sheet.sheet.columns;
+		var refSheetName = null;
+		var _g = 0;
+		while(_g < sheetColumns.length) {
+			var column = sheetColumns[_g];
+			++_g;
+			if(column.name == columnName) {
+				var _g1 = column.type;
+				if(_g1._hx_index == 6) {
+					var sheet1 = _g1.sheet;
+					refSheetName = sheet1;
+					break;
+				}
+			}
+		}
+		if(refSheetName == null) {
+			return null;
+		}
+		return this.getById(db,refSheetName,id);
+	}
+	,getIdField: function(db,sheetName) {
 		var sheet = db.getSheet(sheetName);
 		var sheetColumns = sheet.sheet.columns;
 		var _g = 0;
@@ -585,23 +607,23 @@ Game.prototype = $extend(hxd_App.prototype,{
 		db.load(hxd_Res.get_loader().loadCache("data.cdb",hxd_res_Resource).entry.getText());
 		var collideSheet = db.getSheet("collide");
 		var lines = collideSheet.sheet.lines;
-		haxe_Log.trace(collideSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 170, className : "Game", methodName : "init"});
-		haxe_Log.trace(lines[0],{ fileName : "Game.hx", lineNumber : 173, className : "Game", methodName : "init"});
+		haxe_Log.trace(collideSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 198, className : "Game", methodName : "init"});
+		haxe_Log.trace(lines[0],{ fileName : "Game.hx", lineNumber : 201, className : "Game", methodName : "init"});
 		lines[0].id = "MyNo";
 		var npcSheet = db.getSheet("npc");
 		var npcs = npcSheet.sheet.lines;
-		haxe_Log.trace(npcSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 182, className : "Game", methodName : "init"});
+		haxe_Log.trace(npcSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 210, className : "Game", methodName : "init"});
 		var enumNames = this.getEnumNames(db,"npc","type");
-		haxe_Log.trace("enumValues: " + Std.string(enumNames),{ fileName : "Game.hx", lineNumber : 185, className : "Game", methodName : "init"});
+		haxe_Log.trace("enumValues: " + Std.string(enumNames),{ fileName : "Game.hx", lineNumber : 213, className : "Game", methodName : "init"});
 		npcs[0].hasPortrait = false;
-		haxe_Log.trace(npcs[0],{ fileName : "Game.hx", lineNumber : 189, className : "Game", methodName : "init"});
-		haxe_Log.trace("npc type: " + this.getEnumValue(db,"npc","type",npcs[0].type),{ fileName : "Game.hx", lineNumber : 190, className : "Game", methodName : "init"});
+		haxe_Log.trace(npcs[0],{ fileName : "Game.hx", lineNumber : 217, className : "Game", methodName : "init"});
+		haxe_Log.trace("npc type: " + this.getEnumValue(db,"npc","type",npcs[0].type),{ fileName : "Game.hx", lineNumber : 218, className : "Game", methodName : "init"});
 		var imagesSheet = db.getSheet("images");
-		haxe_Log.trace(imagesSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 193, className : "Game", methodName : "init"});
+		haxe_Log.trace(imagesSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 221, className : "Game", methodName : "init"});
 		var flagValues = this.getFlagNames(db,"images","stats");
-		haxe_Log.trace("flagValues: " + Std.string(flagValues),{ fileName : "Game.hx", lineNumber : 196, className : "Game", methodName : "init"});
-		haxe_Log.trace(imagesSheet.sheet.lines[1],{ fileName : "Game.hx", lineNumber : 198, className : "Game", methodName : "init"});
-		haxe_Log.trace(imagesSheet.sheet.lines[1].stats,{ fileName : "Game.hx", lineNumber : 201, className : "Game", methodName : "init"});
+		haxe_Log.trace("flagValues: " + Std.string(flagValues),{ fileName : "Game.hx", lineNumber : 224, className : "Game", methodName : "init"});
+		haxe_Log.trace(imagesSheet.sheet.lines[1],{ fileName : "Game.hx", lineNumber : 226, className : "Game", methodName : "init"});
+		haxe_Log.trace(imagesSheet.sheet.lines[1].stats,{ fileName : "Game.hx", lineNumber : 229, className : "Game", methodName : "init"});
 		var this1 = imagesSheet.sheet.lines[1].stats;
 		var flags = this1;
 		flags &= ~(1 << 1);
@@ -609,7 +631,7 @@ Game.prototype = $extend(hxd_App.prototype,{
 		var key = flagValues1.keys();
 		while(key.hasNext()) {
 			var key1 = key.next();
-			haxe_Log.trace(key1 + ": " + Std.string(__map_reserved[key1] != null ? flagValues1.getReserved(key1) : flagValues1.h[key1]),{ fileName : "Game.hx", lineNumber : 211, className : "Game", methodName : "init"});
+			haxe_Log.trace(key1 + ": " + Std.string(__map_reserved[key1] != null ? flagValues1.getReserved(key1) : flagValues1.h[key1]),{ fileName : "Game.hx", lineNumber : 239, className : "Game", methodName : "init"});
 		}
 		var newLine = imagesSheet.newLine(-1);
 		newLine.name = "lion";
@@ -623,11 +645,11 @@ Game.prototype = $extend(hxd_App.prototype,{
 		var key2 = flagValues1.keys();
 		while(key2.hasNext()) {
 			var key3 = key2.next();
-			haxe_Log.trace(key3 + ": " + Std.string(__map_reserved[key3] != null ? flagValues1.getReserved(key3) : flagValues1.h[key3]),{ fileName : "Game.hx", lineNumber : 229, className : "Game", methodName : "init"});
+			haxe_Log.trace(key3 + ": " + Std.string(__map_reserved[key3] != null ? flagValues1.getReserved(key3) : flagValues1.h[key3]),{ fileName : "Game.hx", lineNumber : 257, className : "Game", methodName : "init"});
 		}
-		haxe_Log.trace(newLine,{ fileName : "Game.hx", lineNumber : 233, className : "Game", methodName : "init"});
+		haxe_Log.trace(newLine,{ fileName : "Game.hx", lineNumber : 261, className : "Game", methodName : "init"});
 		var levelSheet = db.getSheet("levelData");
-		haxe_Log.trace(levelSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 238, className : "Game", methodName : "init"});
+		haxe_Log.trace(levelSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 266, className : "Game", methodName : "init"});
 		var secondLevel = levelSheet.sheet.lines[1];
 		var subColumnParent = null;
 		var _g = 0;
@@ -641,18 +663,18 @@ Game.prototype = $extend(hxd_App.prototype,{
 			}
 		}
 		var subSheet = levelSheet.base.getSheet(levelSheet.sheet.name + "@" + subColumnParent.name);
-		haxe_Log.trace(subSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 255, className : "Game", methodName : "init"});
+		haxe_Log.trace(subSheet.sheet.columns,{ fileName : "Game.hx", lineNumber : 283, className : "Game", methodName : "init"});
 		var item = levelSheet.sheet.lines[1].npcs[0].item;
-		haxe_Log.trace("item: " + item,{ fileName : "Game.hx", lineNumber : 259, className : "Game", methodName : "init"});
+		haxe_Log.trace("item: " + item,{ fileName : "Game.hx", lineNumber : 287, className : "Game", methodName : "init"});
 		var referencedTile = this.getById(db,"item",item).tile;
-		haxe_Log.trace("referencedTile: " + Std.string(referencedTile),{ fileName : "Game.hx", lineNumber : 263, className : "Game", methodName : "init"});
+		haxe_Log.trace("referencedTile: " + Std.string(referencedTile),{ fileName : "Game.hx", lineNumber : 291, className : "Game", methodName : "init"});
 		var newNPC = { x : 25, y : 9, kind : "Hero", item : "Key"};
 		levelSheet.sheet.lines[1].npcs.push(newNPC);
-		haxe_Log.trace(levelSheet.sheet.lines[1].npcs,{ fileName : "Game.hx", lineNumber : 273, className : "Game", methodName : "init"});
-		haxe_Log.trace(levelSheet.sheet.lines.length,{ fileName : "Game.hx", lineNumber : 275, className : "Game", methodName : "init"});
-		haxe_Log.trace(imagesSheet.sheet.lines.length,{ fileName : "Game.hx", lineNumber : 277, className : "Game", methodName : "init"});
+		haxe_Log.trace(levelSheet.sheet.lines[1].npcs,{ fileName : "Game.hx", lineNumber : 301, className : "Game", methodName : "init"});
+		haxe_Log.trace(levelSheet.sheet.lines.length,{ fileName : "Game.hx", lineNumber : 303, className : "Game", methodName : "init"});
+		haxe_Log.trace("before deletion: " + imagesSheet.sheet.lines.length,{ fileName : "Game.hx", lineNumber : 305, className : "Game", methodName : "init"});
 		this.deleteLineById(db,"images","sloth");
-		haxe_Log.trace(imagesSheet.sheet.lines.length,{ fileName : "Game.hx", lineNumber : 279, className : "Game", methodName : "init"});
+		haxe_Log.trace("after deletion: " + imagesSheet.sheet.lines.length,{ fileName : "Game.hx", lineNumber : 307, className : "Game", methodName : "init"});
 		var newData = db.save();
 	}
 	,__class__: Game
